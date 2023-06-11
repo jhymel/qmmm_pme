@@ -254,7 +254,7 @@ class MMSubsystem(MM_base, System):
         )
         self.simulation.context.setPositions(self.modeller.positions)
 
-    def build_lj_exclusions(self):
+    def build_lj_exclusions(self, lj_combining_rules):
         """
         this sets up the force classes for QM/MM mechanical embedding,
         which is done within system_lj
@@ -271,10 +271,19 @@ class MMSubsystem(MM_base, System):
         qm_atom_set = set(self._particle_groups["qm_atom"])
         mm_atom_set = set([part for residue in self.particle_groups["mm_atom"] for part in residue])
         # Create a new CustomNonbondedForce for the mechanical embedding.
-        custom_nonbonded_force = openmm.CustomNonbondedForce(
-            """4*epsilon*((sigma/r)^12-(sigma/r)^6);
-             sigma=0.5*(sigma1+sigma2);
-             epsilon=sqrt(epsilon1*epsilon2)""")
+        if lj_combining_rules == "Lorentz-Berthelot":
+            custom_nonbonded_force = openmm.CustomNonbondedForce(
+                """4*epsilon*((sigma/r)^12-(sigma/r)^6);
+                 sigma=0.5*(sigma1+sigma2);
+                 epsilon=sqrt(epsilon1*epsilon2)""")
+        elif lj_combining_rules == "Geometric":
+            custom_nonbonded_force = openmm.CustomNonbondedForce(
+                """4*epsilon*((sigma/r)^12-(sigma/r)^6);
+                 sigma=sqrt(sigma1*sigma2);
+                 epsilon=sqrt(epsilon1*epsilon2)""")
+        else:
+            print ("Input lj combining rules not recognized.")
+            sys.exit()
         custom_nonbonded_force.addPerParticleParameter('epsilon')
         custom_nonbonded_force.addPerParticleParameter('sigma')
         custom_nonbonded_force.setNonbondedMethod(

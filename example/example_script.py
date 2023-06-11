@@ -49,6 +49,7 @@ def main():
     decimal_places = 6
     mm_only = False
     settle_dists = [1,1.632981]
+    lj_combining_rules = "Lorentz-Berthelot"
     # Instantiate QM subsystem.
     qm_subsystem = QMSubsystem(
         basis_set,
@@ -92,6 +93,7 @@ def main():
         particle_write_freq=particle_write_freq,
         mm_only=mm_only,
         settle_dists=settle_dists,
+        lj_combining_rules=lj_combining_rules,
     )
     qmmm_system.run_dynamics(1000)
 

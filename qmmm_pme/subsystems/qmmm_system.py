@@ -84,6 +84,7 @@ class QMMMSystem(System):
             report_forces=False,
             mm_only=False,
             settle_dists=None,
+            lj_combining_rules="Lorentz-Berthelot"
         ):
         System.__init__(self)
         # Set working directory.
@@ -146,7 +147,7 @@ class QMMMSystem(System):
             )
             self.subsystems.append(self.lj_subsystem)
             self.lj_subsystem.particle_groups = particle_groups
-            self.lj_subsystem.build_lj_exclusions()
+            self.lj_subsystem.build_lj_exclusions(lj_combining_rules)
         self.mm_only = mm_only
         # Default embedding settings.
         self.embedding_cutoff = embedding_cutoff
@@ -160,7 +161,7 @@ class QMMMSystem(System):
             # Ensure that there is an MM subsystem which can provide the
             # external potential grid.
             if self.mm_subsystem.platform.getName() not in supported_platforms:
-                print("""Given OpenMM Platform is not ocmpatible with
+                print("""Given OpenMM Platform is not compatible with
                       QM/MM/PME.""")
                 sys.exit()
             self.pbc_subsystem = PBCSubsystem(
